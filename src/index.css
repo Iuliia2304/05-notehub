@@ -1,0 +1,8 @@
+@import 'modern-normalize/modern-normalize.css';
+
+body {
+  margin: 0;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #fff;
+  color: #212529;
+}
