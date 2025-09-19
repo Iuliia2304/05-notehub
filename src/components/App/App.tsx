@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useQuery, useQueryClient, useMutation, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useDebounce } from 'use-debounce';
-import {
-  fetchNotes,
-  type FetchNotesResponse,
-  deleteNote,
-} from '../../services/noteService';
+import { fetchNotes, type FetchNotesResponse } from '../../services/noteService';
 import SearchBox from '../SearchBox/SearchBox';
 import Pagination from '../Pagination/Pagination';
 import NoteList from '../NoteList/NoteList';
@@ -32,26 +28,15 @@ export default function App() {
         search: debouncedSearch || undefined,
       }),
     staleTime: 30_000,
-    placeholderData: keepPreviousData, // ✅ правильний варіант для пагінації
+    placeholderData: keepPreviousData,
   });
 
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch]);
 
-  const notes = data?.results ?? [];
-  const pageCount = data?.totalPages ?? 0;
-
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const deleteMut = useMutation({
-    mutationFn: (id: string) => deleteNote(id),
-    onMutate: (id) => setDeletingId(id),
-    onSettled: () => setDeletingId(null),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-    },
-  });
+  const notes = data?.notes ?? []; 
+  const pageCount = data?.totalPages ?? 0; 
 
   const header = useMemo(
     () => (
@@ -83,11 +68,7 @@ export default function App() {
       )}
 
       {notes.length > 0 ? (
-        <NoteList
-          notes={notes}
-          onDelete={(id) => deleteMut.mutate(id)}
-          isDeletingId={deletingId}
-        />
+        <NoteList notes={notes} />
       ) : (
         !isLoading && !isFetching && <p style={{ padding: 16 }}>No notes yet</p>
       )}
